@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { AuthBody, CreateUser } from '../auth/auth.controller';
 import { PrismaService } from 'src/users/prisma.service';
 import { compare, hash } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserPayload } from './jwt.strategy';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { LogUserDto } from 'src/users/dto/login-user.dto';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
-  async login({ authBody }: { authBody: AuthBody }) {
+  async login({ authBody }: { authBody: LogUserDto }) {
     const { password, email } = authBody;
 
     // const hashedPassword = await this.hashedPassword({ password });
@@ -32,7 +33,7 @@ export class AuthService {
     }
     return await this.authenticateUser({ userId: existingUser.id });
   }
-  async register({ registerBody }: { registerBody: CreateUser }) {
+  async register({ registerBody }: { registerBody: CreateUserDto }) {
     const { name, email, password } = registerBody;
 
     const existingUser = await this.prisma.user.findUnique({
