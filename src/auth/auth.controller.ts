@@ -32,7 +32,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async authenticateUser(@Request() request: RequestWithUser) {
+  async getAuthenticatedUser(@Request() request: RequestWithUser) {
     return await this.userService.findOne(request.user.userId);
   }
 }
