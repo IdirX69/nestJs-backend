@@ -9,7 +9,7 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll() {
-    const users = await this.prisma.user.findMany({})
+    const users = await this.prisma.user.findMany({});
     return users;
   }
 
@@ -18,10 +18,10 @@ export class UsersService {
   }
   async findOne(userId: number) {
     const user = await this.prisma.user.findUnique({
-      where:{
+      where: {
         id: userId,
-      }
-    })
+      },
+    });
     return user;
   }
 
