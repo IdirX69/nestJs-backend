@@ -7,30 +7,51 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String   @db.VarChar(255)
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-  content   String?  @db.Text
-  published Boolean  @default(false)
-  authorId  Int
-  User      User     @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Post_ibfk_1")
-
-  @@index([authorId], map: "authorId")
-}
-
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String? @db.Text
-  userId Int     @unique(map: "userId")
-  User   User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Profile_ibfk_1")
-}
-
+// Définition du modèle pour les utilisateurs
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String?  @db.VarChar(255)
-  password String?  @db.VarChar(255)
-  email    String   @unique(map: "email") @db.VarChar(255)
-  Post     Post[]
-  Profile  Profile?
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  fullName String
+  address  String
+  orders   Order[]
+}
+
+// Définition du modèle pour les produits
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  image       String
+  categories  Category[]
+  OrderItem   OrderItem[]
+}
+
+// Définition du modèle pour les catégories de produits
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+// Définition du modèle pour les commandes
+model Order {
+  id        Int         @id @default(autoincrement())
+  createdAt DateTime    @default(now())
+  total     Float
+  status    String
+  items     OrderItem[]
+  user      User?       @relation(fields: [userId], references: [id])
+  userId    Int?
+}
+
+// Définition du modèle pour les articles de commande
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
 }
