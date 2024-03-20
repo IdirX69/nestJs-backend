@@ -6,6 +6,10 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(3)
   password: string;
-  @IsString({ message: 'Indiquez votre Nom' })
-  name: string;
+  @IsString({ message: 'Indiquez votre nom et prénom' })
+  firstname: string;
+  @IsString({ message: 'Indiquez votre nom et prénom' })
+  lastname: string;
+  @IsString({ message: 'Indiquez votre adresse postale' })
+  address: string;
 }

@@ -9,12 +9,13 @@ datasource db {
 
 // Définition du modèle pour les utilisateurs
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String
-  fullName String
-  address  String
-  orders   Order[]
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  password  String
+  firstname String
+  lastname  String
+  address   String
+  orders    Order[]
 }
 
 // Définition du modèle pour les produits

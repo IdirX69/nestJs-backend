@@ -5,11 +5,13 @@ import { JwtService } from '@nestjs/jwt';
 import { UserPayload } from './jwt.strategy';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LogUserDto } from 'src/users/dto/login-user.dto';
+import { MailerService } from 'src/users/mailer.service';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
   ) {}
   async login({ authBody }: { authBody: LogUserDto }) {
     const { password, email } = authBody;
@@ -36,7 +38,7 @@ export class AuthService {
 
   async register({ registerBody }: { registerBody: CreateUserDto }) {
     try {
-      const { name, email, password } = registerBody;
+      const { firstname, email, password, address, lastname } = registerBody;
 
       const existingUser = await this.prisma.user.findUnique({
         where: {
@@ -49,11 +51,19 @@ export class AuthService {
       const hashedPassword = await this.hashedPassword({ password });
       const createdUser = await this.prisma.user.create({
         data: {
+          firstname,
           email,
           password: hashedPassword,
-          name,
+          address,
+          lastname,
         },
       });
+
+      await this.mailerService.sendCreatedAccountEmail({
+        recepient: email,
+        firstname: firstname,
+      });
+
       return this.authenticateUser({ userId: createdUser.id });
     } catch (error) {
       return { error: true, message: error.message };
