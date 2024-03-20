@@ -29,6 +29,11 @@ export class AuthController {
     console.log({ registerBody });
     return await this.authService.register({ registerBody });
   }
+  @Post('request-reset-password')
+  async requestUserPassword(@Body('email') email: string) {
+    console.log({ email });
+    return await this.authService.resetUserPasswordRequest({ email });
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get()

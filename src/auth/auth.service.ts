@@ -7,7 +7,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LogUserDto } from 'src/users/dto/login-user.dto';
 import { MailerService } from 'src/users/mailer.service';
 import { createId } from '@paralleldrive/cuid2';
-import { error } from 'console';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -93,11 +93,11 @@ export class AuthService {
     };
   }
 
-  async resetUserPasswordRequest({ userId }: { userId: number }) {
+  async resetUserPasswordRequest({ email }: { email: string }) {
     try {
       const existingUser = await this.prisma.user.findUnique({
         where: {
-          id: userId,
+          email,
         },
       });
       if (!existingUser) {
@@ -110,13 +110,12 @@ export class AuthService {
       }
       const createdId = createId();
       await this.prisma.user.update({
-        where: { id: userId },
+        where: { email },
         data: { isResettingPassword: true, resetPasswordToken: createdId },
       });
-      const { email, firstname } = existingUser;
       await this.mailerService.sendRequestedPasswordEmail({
-        recepient: email,
-        firstname,
+        recepient: existingUser.email,
+        firstname: existingUser.email,
         token: createdId,
       });
       return {
