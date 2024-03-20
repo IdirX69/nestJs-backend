@@ -6,6 +6,8 @@ import { UserPayload } from './jwt.strategy';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LogUserDto } from 'src/users/dto/login-user.dto';
 import { MailerService } from 'src/users/mailer.service';
+import { createId } from '@paralleldrive/cuid2';
+import { error } from 'console';
 @Injectable()
 export class AuthService {
   constructor(
@@ -89,5 +91,41 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async resetUserPasswordRequest({ userId }: { userId: number }) {
+    try {
+      const existingUser = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+      if (!existingUser) {
+        throw new Error("L'utilisateur n'existe pas");
+      }
+      if (existingUser.isResettingPassword === true) {
+        throw new Error(
+          'Une demande de réinitiallisation de mot de passe est déja en cours',
+        );
+      }
+      const createdId = createId();
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { isResettingPassword: true, resetPasswordToken: createdId },
+      });
+      const { email, firstname } = existingUser;
+      await this.mailerService.sendRequestedPasswordEmail({
+        recepient: email,
+        firstname,
+        token: createdId,
+      });
+      return {
+        error: false,
+        message:
+          'Veuillez vérifier vos email por réinitialiser votre mot de passe !',
+      };
+    } catch (error) {
+      return { error: true, message: error.message };
+    }
   }
 }
