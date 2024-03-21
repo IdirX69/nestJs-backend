@@ -127,4 +127,28 @@ export class AuthService {
       return { error: true, message: error.message };
     }
   }
+  async verifyResetPasswordToken({ token }: { token: string }) {
+    try {
+      const existingUser = await this.prisma.user.findUnique({
+        where: {
+          resetPasswordToken: token,
+        },
+      });
+      if (!existingUser) {
+        throw new Error("L'utilisateur n'existe pas");
+      }
+      if (existingUser.isResettingPassword === false) {
+        throw new Error(
+          'Aucune demande de réinitiallisation de mot de passe est en cours',
+        );
+      }
+
+      return {
+        error: false,
+        message: 'Le token est valide',
+      };
+    } catch (error) {
+      return { error: true, message: error.message };
+    }
+  }
 }

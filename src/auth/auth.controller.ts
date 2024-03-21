@@ -34,6 +34,11 @@ export class AuthController {
     console.log({ email });
     return await this.authService.resetUserPasswordRequest({ email });
   }
+  @Get('verify-reset-password-token')
+  async verifyResetPasswordToken(@Body('token') token: string) {
+    console.log({ token });
+    return await this.authService.verifyResetPasswordToken({ token });
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get()
