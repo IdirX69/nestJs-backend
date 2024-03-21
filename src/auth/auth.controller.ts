@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -31,12 +32,12 @@ export class AuthController {
   }
   @Post('request-reset-password')
   async requestUserPassword(@Body('email') email: string) {
-    console.log({ email });
+    console.log('email to restet password' + { email });
     return await this.authService.resetUserPasswordRequest({ email });
   }
   @Get('verify-reset-password-token')
-  async verifyResetPasswordToken(@Body('token') token: string) {
-    console.log({ token });
+  async verifyResetPasswordToken(@Query('token') token: string) {
+    console.log(token + { token });
     return await this.authService.verifyResetPasswordToken({ token });
   }
 
