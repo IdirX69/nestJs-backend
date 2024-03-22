@@ -135,7 +135,7 @@ export class AuthService {
         },
       });
       if (!existingUser) {
-        throw new Error("L'utilisateur n'existe pas");
+        throw new Error('l utilisateur existe pas');
       }
       if (existingUser.isResettingPassword === false) {
         throw new Error(
