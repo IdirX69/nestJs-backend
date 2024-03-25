@@ -7,6 +7,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LogUserDto } from 'src/users/dto/login-user.dto';
 import { MailerService } from 'src/users/mailer.service';
 import { createId } from '@paralleldrive/cuid2';
+import { ResetUserPasswordDto } from 'src/users/dto/reset-user-password';
 
 @Injectable()
 export class AuthService {
@@ -122,6 +123,42 @@ export class AuthService {
         error: false,
         message:
           'Veuillez vérifier vos email por réinitialiser votre mot de passe !',
+      };
+    } catch (error) {
+      return { error: true, message: error.message };
+    }
+  }
+  async resetUserPassword({
+    resetPasswordDto,
+  }: {
+    resetPasswordDto: ResetUserPasswordDto;
+  }) {
+    try {
+      const { password, token } = resetPasswordDto;
+      const existingUser = await this.prisma.user.findUnique({
+        where: {
+          resetPasswordToken: token,
+        },
+      });
+      if (!existingUser) {
+        throw new Error("L'utilisateur n'existe pas");
+      }
+      if (existingUser.isResettingPassword === false) {
+        throw new Error(
+          'Aucune demande de réinitiallisation de mot de passe en cours',
+        );
+      }
+
+      const hashedPassword = await this.hashedPassword({ password });
+
+      await this.prisma.user.update({
+        where: { resetPasswordToken: token },
+        data: { isResettingPassword: false, password: hashedPassword },
+      });
+
+      return {
+        error: false,
+        message: 'Votre mot de passe a bien été changée',
       };
     } catch (error) {
       return { error: true, message: error.message };

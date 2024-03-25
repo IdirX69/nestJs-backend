@@ -13,6 +13,7 @@ import { RequestWithUser } from './jwt.strategy';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LogUserDto } from 'src/users/dto/login-user.dto';
+import { ResetUserPasswordDto } from 'src/users/dto/reset-user-password';
 
 @Controller('auth')
 export class AuthController {
@@ -34,6 +35,10 @@ export class AuthController {
   async requestUserPassword(@Body('email') email: string) {
     console.log('email to restet password' + { email });
     return await this.authService.resetUserPasswordRequest({ email });
+  }
+  @Post('reset-password')
+  async resetUserPassword(@Body() resetPasswordDto: ResetUserPasswordDto) {
+    return await this.authService.resetUserPassword({ resetPasswordDto });
   }
   @Get('verify-reset-password-token')
   async verifyResetPasswordToken(@Query('token') token: string) {
